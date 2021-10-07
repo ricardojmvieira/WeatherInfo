@@ -3,7 +3,12 @@
     "start": "nodemon app.js "
   },
   "dependencies": {
+    "cors": "^2.8.5",
+    "debug": "^2.6.9",
     "express": "^4.17.1",
+    "express-graphql": "^0.12.0",
+    "graphql": "^15.6.1",
+    "node-cron": "^3.0.0",
     "request": "^2.88.2"
   },
   "devDependencies": {
