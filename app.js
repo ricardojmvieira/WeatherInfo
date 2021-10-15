@@ -1,7 +1,7 @@
 const express = require('express');
 const {graphqlHTTP } = require('express-graphql');
 const cors = require('cors');
-const cronJob = require('node-cron')
+const nodeCron = require('node-cron')
 const {GraphQLSchema, GraphQLObjectType,GraphQLString, GraphQLList, GraphQLFloat, GraphQLNonNull} = require('graphql');
 const weatherData = require('./weatherData');
 
@@ -47,44 +47,22 @@ app.use('/graphql', graphqlHTTP ({
     graphiql:true
 }))
 
-//route to get weather data
-app.get('/weather', (req, res) => {
-    cities.forEach(city => {
-        weatherData(city, (error, {cityName, temperature, description}) => {
-        if(error){
-            return res.send({error})
-        }
-        temperature = (temperature-273.15).toFixed(1);
-        let newCity = {cityName, temperature, description};
-        weathers.push(newCity);
-        });
-    });
-    setTimeout(function (){
-        res.send(weathers)
-        console.log(weathers)
-    }, 3000);
-    
-})
-
 //cronjob to get weather data
 app.listen(3000, () => {
-  cronJob.schedule('*/30 * * * *',
-	function() {
-    weathers = [];
-		cities.forEach(city => {
-      weatherData(city, (error, {cityName, temperature, description}) => {
-        if(error){
-          return res.send({error})
-        }
-        temperature = (temperature-273.15).toFixed(1);
-        let newCity = {cityName, temperature, description};
-        weathers.push(newCity);
-      });
-    });
-	},
-	null,
-	true,
-	'Europe/Lisbon'
+    nodeCron.schedule('*/1 * * * *', () => {
+        weathers.length = 0
+        cities.forEach(city => {
+            weatherData(city, (error, {cityName, temperature, description}) => {
+                if(error){ return res.send({error})}
+                temperature = (temperature-273.15).toFixed(1);
+                let newCity = {cityName, temperature, description};
+                weathers.push(newCity);
+                console.log(weathers.length)
+            });
+        });
+    },
+    null,
+    true,
+    'Europe/Lisbon'
   )
 })
-//app.listen(3000);
