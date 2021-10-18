@@ -1,7 +1,7 @@
 const express = require('express');
 const {graphqlHTTP } = require('express-graphql');
 const cors = require('cors');
-const nodeCron = require('node-cron')
+const nodeCron = require('node-cron');
 const {GraphQLSchema, GraphQLObjectType,GraphQLString, GraphQLList, GraphQLFloat, GraphQLNonNull} = require('graphql');
 const weatherData = require('./weatherData');
 
@@ -38,6 +38,8 @@ const schema = new GraphQLSchema({
     query: RootQueryType,
 })
 
+
+
 app.use(express.json());
 app.use(cors());
 
@@ -49,15 +51,15 @@ app.use('/graphql', graphqlHTTP ({
 
 //cronjob to get weather data
 app.listen(3000, () => {
-    nodeCron.schedule('*/1 * * * *', () => {
-        weathers.length = 0
+    nodeCron.schedule('*/20 * * * * *', () => {
+        weathers.length = 0;
         cities.forEach(city => {
             weatherData(city, (error, {cityName, temperature, description}) => {
                 if(error){ return res.send({error})}
                 temperature = (temperature-273.15).toFixed(1);
                 let newCity = {cityName, temperature, description};
                 weathers.push(newCity);
-                console.log(weathers.length)
+                console.log(weathers.length)  
             });
         });
     },
